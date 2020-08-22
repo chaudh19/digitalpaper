@@ -15,6 +15,7 @@ def index(request):
     return render(request, 'demo/index.html', {})
 
 def save_image(request):
+	print('in save image')
 	response_data = {}
 
 	if request.POST.get('action') == 'post':
@@ -44,6 +45,7 @@ def display_result(request, url):
 	# file=open(settings.STATIC_ROOT+'/'+'some_image.png','w')
 	# file.write(imgdata)
 	# file.close()
+
 
 	r = latex({
 	    # 'src': mathpix.image_uri('../images/some_image.png'),
