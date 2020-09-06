@@ -184,10 +184,6 @@
                 <input type="button" value="Save" id="btn" onclick="save()">
                 <input type="button" value="Clear" id="clr" size="23" onclick="erase()">
             </div>
-            <!-- <img id="canvasimg" style="position:absolute;top:10%;left:52%;" style="display:none;"> -->
-            <!-- <div id="canvasurl"></div> -->
-            <!-- <input type="button" value="save" id="btn" size="30" onclick="save()" style="position:absolute;top:55%;left:10%;">
-            <input type="button" value="clear" id="clr" size="23" onclick="erase()" style="position:absolute;top:55%;left:15%;"> -->
 
             <div id="print"></div>
         </div>
@@ -215,37 +211,24 @@
         const csrftoken = getCookie('csrftoken');
 
         function save() {
-            // e.preventDefault();
-            // alert(1)
 
-            // document.getElementById("canvasimg").style.border = "2px solid";
             var dataURL = canvas.toDataURL();
-
-             // download(canvas, dataURL, 'myimage.png');
-            // document.getElementById("canvasimg").src = dataURL;
-            // document.getElementById("canvasimg").style.display = "inline";
-            // document.getElementById("canvasurl").innerHTML = dataURL;
 
             $.ajax({
                 type:'POST',
-                url:'save_image',
+                url:'mathpix_lookup',
                 data:{
                     dataURL: dataURL,
                     csrfmiddlewaretoken:getCookie('csrftoken'),
-                    // csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
                     action: 'post'
                 },
                 success:function(json){
-                    // document.getElementById("post-form").reset();
-                    // $("#result").text(json['crack_times_display']['offline_fast_hashing_1e10_per_second'] + '-' + json['score']);
                     console.log(json);
                     $("#print").html(json);
-                    // alert('ok')
                 },
                 error : function(xhr,errmsg,err) {
                     $("#print").html('there was an error');
                     console.log(xhr.status + ": " + xhr.responseText); 
-                // provide a bit more info about the error to the console
                 }
             });
         };
@@ -254,4 +237,3 @@
     </body>
     </html>
  
-

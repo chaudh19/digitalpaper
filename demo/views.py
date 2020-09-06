@@ -1,65 +1,175 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.conf import settings
 
 import base64
-# import mathpix
 import json
 import os
 import requests
-from django.conf import settings
+import xml.etree.ElementTree as ET
+from itertools import permutations 
 
+###################################
+#
+# Views
+#
+###################################
 
+# x ^ { 2 } + 5
 
 def index(request):
-    # return HttpResponse("Hello, world. You're at the index.")
-    return render(request, 'demo/index.html', {})
+	return render(request, 'demo/index.html', {})
 
-def save_image(request):
-	print('in save image')
+def mathpix_lookup(request):
 	response_data = {}
 
 	if request.POST.get('action') == 'post':
 		dataURL = request.POST.get('dataURL')
-		x = dataURL.split(",")[1]
-		print(x)
-		return display_result(request, x)
+		url = dataURL.split(",")[1]
+		data = url.replace(' ', '+')
+		imgdata = base64.b64decode(data)
+		filename = 'demo/static/demo/some_image.png'  # I assume you have a way of picking unique filenames
+		if os.path.exists(filename):
+			os.remove(filename)
+		with open(filename, 'wb') as f:
+			f.write(imgdata)
+		
+		r = latex({
+		    'src': image_uri(filename),
+		    'formats': ['latex_simplified']
+		})
+
+		return render(request, 'demo/display_result.html', { 'latex': r['latex_simplified'] })
 	else:
 		dataURL = ''
 		return HttpResponse("<p>no url<p>")
 
-	# return HttpResponse("<h1>response</h1><p>" + str(dataURL) + "<p>")
-	# return render(request, 'demo/display_result.html', {})
+
+def wolfram(request):
+	solution = '-5 k^({3}) - 6 k^({2}) - k + 1'
+	terms = ['-5 k^({3}) ', '- 6 k^({2}) ', '- k ', '+ 1 ']
+	# TODO programmatically add a space rather than manually
+		
+	l = list(permutations(terms)) 
+	perms = []
+	for item in l:
+		perms.append(''.join(item).strip("+").strip())
+
+	print(perms)
+
+	steps = ['-5k^{3}-6k+5k-(6k^{2})+1', '-5k^{3}-k-6k^{2}+1', '-5k^{3}-6k^{2}-k+1']
+
+	for s in steps:
+		# TODO MAYBE able to combine the two wolfram queries?
+		encoded_query = requests.utils.quote(s)
+		r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Input&format=plaintext')
+		tree = ET.fromstring(r.content)
+		new_s = tree.findall('.//plaintext')[0].text
+		
+		if new_s == solution:
+			print(new_s, ' correct answer')
+		elif new_s in perms:
+			print(new_s, ' nice work. how would you write this in standard form?')
+		else:
+			query = new_s + ' where k = 30'
+			encoded_query = requests.utils.quote(query)
+			r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Result&format=plaintext')
+			tree = ET.fromstring(r.content)
+			result = tree.findall('.//plaintext')[0].text
+			if result == '-140429':
+				print(new_s, ' correct, whats next')
+			else:
+				print(new_s, ' hm not quite')
+
+	return HttpResponse("<p>no url<p>")
 
 
-def display_result(request, url):
-	# url = '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ECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASkCApNgUESBAgIAA0QMECBAgkBIQICk2RQQIECAgQPQAAQIECKQEBEiKTREBAgQICBA9QIAAAQIpAQGSYlNEgAABAgJEDxAgQIBASuD/ALMqZRS/V29hAAAAAElFTkSuQmCC'
-	data = url.replace(' ', '+')
-	imgdata = base64.b64decode(data)
-	filename = 'demo/static/demo/some_image.png'  # I assume you have a way of picking unique filenames
-	if os.path.exists(filename):
-		os.remove(filename)
-	# else:
-		# print("The file does not exist")
-	with open(filename, 'wb') as f:
-		f.write(imgdata)
-	# file=open(settings.STATIC_ROOT+'/'+'some_image.png','w')
-	# file.write(imgdata)
-	# file.close()
-
-
-	r = latex({
-	    # 'src': mathpix.image_uri('../images/some_image.png'),
-	    # 'src': image_uri('some_image.png'),
-	    'src': image_uri(filename),
-	    'formats': ['latex_simplified']
-	})
+def wolfram2(request):
+	solution = 'x = 7/6'
+	terms = ['-5k^{3}', '-6k^{2}', '-k', '+1']
 	
-	print(json.dumps(r, indent=4, sort_keys=True))
+	l = list(permutations(['-5k^{3}', '-6k^{2}', '-k', '+1'])) 
+	perms = []
+	for item in l:
+		perms.append(''.join(item).strip("+"))
 
-	# return HttpResponse(r['latex_simplified'])
-	# return HttpResponse('ok')
-	return render(request, 'demo/display_result.html', { 'latex': r['latex_simplified'] })
+	print(perms)
 
+	steps = ['-5k^{3}-6k+5k-6k^{2}+1', '-5k^{3}-k-6k^{2}+1', '-5k^{3}-6k^{2}-k+1']
+
+	for s in steps:
+		if s == solution:
+			print(s, ' correct answer')
+		elif s in perms:
+			print(s, ' nice work. how would you write this in standard form?')
+		else:
+			query = s + ' where k = 30'
+			encoded_query = requests.utils.quote(query)
+			r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Result&format=plaintext')
+			tree = ET.fromstring(r.content)
+			result = tree.findall('.//plaintext')[0].text
+			if result == '-140429':
+				print(s, ' correct, whats next')
+			else:
+				print(s, ' hm not quite')
+
+	return HttpResponse("<p>no url<p>")
+
+
+def perms(request):
+	l = list(permutations(['-5k^{3}', '-6k^{2}', '-k', '+1'])) 
+	new_l = []
+	for item in l:
+		new_l.append(''.join(item))
+	return render(request, 'demo/perms.html', {'l':new_l})
+
+###################################
+#
+# Wolfram Tests
+#
+###################################
+
+def wolfram_expanded_form(request):
+	query = '2x^2(x^2 + 2x -15)'
+	encoded_query = requests.utils.quote(query)
+	r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Expanded%20form&format=plaintext')
+	tree = ET.fromstring(r.content)
+	expanded_form = tree.findall('.//plaintext')[0].text
+	return render(request, 'demo/wolfram_expanded_form.html', {
+		'query': query,
+		'expanded_form':expanded_form
+		})
+
+
+def wolfram_evaluate(request):
+	query = '−5k^3 −6k+5k−6k ^2 +1 where k = 30'
+	encoded_query = requests.utils.quote(query)
+	r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Result&format=plaintext')
+	tree = ET.fromstring(r.content)
+	result = tree.findall('.//plaintext')[0].text
+	return render(request, 'demo/wolfram_evaluate.html', {
+		'query': query,
+		'result':result
+		})
+
+
+def wolfram_terms(request):
+	query = '−5k^3 −6k+5k + 1 −6k ^2 terms'
+	encoded_query = requests.utils.quote(query)
+	r = requests.get('http://api.wolframalpha.com/v2/query?appid=32J79Q-R6UEQ4VQE2&input='+encoded_query+'&podtitle=Result&format=plaintext')
+	tree = ET.fromstring(r.content)
+	result = tree.findall('.//plaintext')[0].text
+	return render(request, 'demo/wolfram_evaluate.html', {
+		'query': query,
+		'result':result
+		})
+
+
+###################################
+#
+# Mathpix
+#
+###################################
 
 env = os.environ
 

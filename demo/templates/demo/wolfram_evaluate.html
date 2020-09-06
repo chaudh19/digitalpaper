@@ -1,0 +1,81 @@
+ 
+ <html>
+    <script type="text/javascript">
+    </script>
+
+    <head>
+        <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            #btn, #clr {
+                background: #F0F2F5; border-radius: 8px; border:0px; padding:10px 20px; font-family: Sinkin Sans; font-size: 12px; font-weight: 600; 
+                margin-top: 30px;
+            }
+            #clr {
+                margin-left:30px;
+            }
+            #btn:hover, #clr:hover {
+                cursor: pointer;
+                background: rgba(87, 78, 255, .4);
+                transition: background 0.5s;
+            }
+            #btn:active, #btn:focus, #clr:active, #clr:focus {
+                outline: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container" >
+            <h1>hello</h1>
+            <p>query: {{query}}</p>
+            <p>result: {{result}}</p>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+
+        <script>
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // function save() {
+
+        //     var dataURL = canvas.toDataURL();
+
+        //     $.ajax({
+        //         type:'POST',
+        //         url:'mathpix_lookup',
+        //         data:{
+        //             dataURL: dataURL,
+        //             csrfmiddlewaretoken:getCookie('csrftoken'),
+        //             action: 'post'
+        //         },
+        //         success:function(json){
+        //             console.log(json);
+        //             $("#print").html(json);
+        //         },
+        //         error : function(xhr,errmsg,err) {
+        //             $("#print").html('there was an error');
+        //             console.log(xhr.status + ": " + xhr.responseText); 
+        //         }
+        //     });
+        // };
+        </script>
+
+    </body>
+    </html>
+ 
+
