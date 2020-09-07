@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>Starter Template for Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/starter-template/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <style>
+      body {
+        font-family: 'Graphik';
+      }
+      .container-fluid {
+        background: #F0F2F5;
+        padding-top:6rem;
+        min-height: 100vh;
+      }
+      .questions a {
+        line-height: 4;
+        color:#000;
+      }
+      .questions a:hover {
+        text-decoration: none;       
+      }
+      .questions .circle {
+        vertical-align: middle;
+        height:40px;
+        width: 40px;
+        border-radius: 100px;
+        background-color: white;
+        display: inline-block;
+        margin-right:10px;
+      }
+      .equation-box {
+        background-color:rgb(255, 255, 255);
+        border-radius: 8px;
+        /*min-height: 200px; */
+        padding: 10px;
+        margin-top: 1rem;
+        border: 3px solid #E3E3E3;
+        text-align: center;
+      }
+      .hint-box {
+        padding: 10px 0px;
+        margin-top: 1rem;
+      }
+      .equation-box input {
+        border: 0px;
+        outline: 0px;
+        font-size:50px;
+        height:150px;
+        font-family: 'Maison Neue';
+        width:100%;
+        text-align: center;
+      }
+      .equation-box p {
+        border: 0px;
+        outline: 0px;
+        font-size:30px;
+        font-family: 'Maison Neue';
+        width:100%;
+        margin-bottom: 0px;
+        text-align: left;
+        padding:20px;
+      }
+      #buttons {
+        text-align: right;
+        margin-top:1rem;
+      }
+      .button {
+        outline: none;
+        border:none;
+        display: inline-block;
+        background-color:rgb(24, 119, 242);
+        border-radius: 6px; 
+        color: #ffffff;
+        cursor:pointer;
+        text-align: center;
+        padding:15px 0px;
+        width:234px;
+        margin-left:0.5rem;
+        font-weight:500;
+      }
+      #clear {
+        background: #CCCCCC;
+        color: #000;
+      }
+      .hint-title {
+        background-color: #CE3A60;
+        display: inline-block;
+        font-weight: 500;
+        font-size:13px;
+        text-transform: uppercase;
+        color:white;
+        padding:4px 8px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+      .print {
+          position: absolute;
+          top:2rem;
+          left:2rem;
+          font-size:14px;
+          background: #efefef;
+          border-radius:8px;
+          padding:10px;
+      }
+
+    </style>
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="#">Navbar</a>
+    </nav>
+
+    <main role="main" class="container-fluid">
+      <div class="row">
+        <div class="col">
+          {% for i in questions %}
+          <div class="questions">
+            <a href="{% url 'bootstrap' forloop.counter %}"><div class="circle"></div>Question {{forloop.counter}}</a>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="col-lg-10 col-md-8">
+
+            <div id="equations">
+              <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col-8">
+                  <div class="equation-box">
+                    <p>{{question}}</p>
+                  </div>
+                </div>
+                <div class="col-3">
+                </div>
+              </div>
+              {% include 'demo/bootstrap_equation.html' with id=1 %}
+            </div>
+          
+            <div id="buttons" class="row">
+              <div class="col-1">
+              </div>
+              <div class="col-8">
+                <input type="button" class="button" value="Check" id="check" onclick="check()">
+                <input type="button" class="button" value="Clear" id="clear" onclick="erase()">
+              </div>
+            </div>
+        </div>
+        <!-- <div class="col">
+        </div> -->
+      </div>
+
+    </main><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script> -->
+    <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+      
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+      const csrftoken = getCookie('csrftoken');
+
+      function sayhi() {
+        alert(1)
+      };
+
+      function check() {
+        // input = $('.equation-box :input').last().val()
+        // num = $('.equation-box :input').last().data('num')
+        canvas = $('.equation-box .canvas').last()[0]
+        console.log('canvas element: ', canvas)
+        
+        var dataURL = canvas.toDataURL();
+        console.log('dataURL: ', dataURL)
+
+        // convert to latex
+        $.ajax({
+            type:'POST',
+            url:'../mathpix_lookup',
+            data:{
+                dataURL: dataURL,
+                csrfmiddlewaretoken:getCookie('csrftoken'),
+                action: 'post'
+            },
+            success:function(json){
+                console.log(json);
+                $('.print').last().html(json);
+                
+                // check for accuracy
+                check_accuracy()
+            },
+            error : function(xhr,errmsg,err) {
+                $("#print").html('there was an error');
+                console.log(xhr.status + ": " + xhr.responseText); 
+            }
+        });
+      };
+
+      function check_accuracy() {
+        input = $('#print').last().text()
+        num = $('#print').data('num')
+        
+        console.log('input ', input)
+        console.log('num ', num)
+
+        if(input) {
+          $.ajax({
+            type:'POST',
+            url:'../bootstrap_query',
+            data:{
+                input: input,
+                num: num,
+                csrfmiddlewaretoken:getCookie('csrftoken'),
+                action: 'post'
+            },
+            success:function(response){
+                // console.log(response);
+                if(response.status === "incorrect") {
+                  // console.log('incorrect')
+                  // incorrect
+                  // $('.equation-box :input').last().val('')
+                  $('.equation-box .canvas').last().css("border-color","red");
+                } else {
+                  // console.log('correct')
+                  // correct
+                  $('.hint-title').css("background-color","#e4e6eb");
+                  $('.hint-title').css("color","#000");
+                  $("#equations").append(response);
+                }
+            },
+            error : function(xhr,errmsg,err) {
+                console.log('ajax error')
+                console.log(xhr.status + ": " + xhr.responseText); 
+            }
+          });
+        } else {
+          alert('please type something')
+        }
+      };
+
+    </script>
+
+  </body>
+</html>

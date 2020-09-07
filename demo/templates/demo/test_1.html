@@ -1,0 +1,87 @@
+ 
+ <html>
+    <head>
+        <style>
+            #drawing {
+                border: 1px solid #000;
+                position: absolute;
+                top: 50px;
+                right: 0;
+            }
+            #without_offset {
+                border: 1px solid #000;
+            }
+        </style>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+        
+        <script>
+            var ctx = $("#drawing");
+            var ctx_without_offset = $("#without_offset");
+
+            function makeDrawFunction(elem) {
+                // var context = elem.getContext('2d');
+                return function(e) {
+                    var offset = $(elem).offset();
+                    context.lineTo(e.clientX - offset.left, e.clientY - offset.top);
+                    context.stroke();
+                }
+            }
+            
+            
+            $("#drawing").mousemove(makeDrawFunction(ctx));
+            
+            $("#without_offset").mousemove(makeDrawFunction(ctx_without_offset));
+        </script>
+    </head>
+    
+    <body>
+        <canvas id="drawing"></canvas>
+        <canvas id="without_offset"></canvas>
+
+    </body>
+</html>
+
+
+<!--  
+ <html>
+    <head>
+      
+
+<style>
+  #drawing {
+    border: 1px solid #000;
+    position: absolute;
+    top: 50px;
+    right: 0;
+}
+#without_offset {
+    border: 1px solid #000;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+<script>
+  function makeDrawFunction(elem) {
+    var context = elem.getContext('2d');
+    return function(e) {
+        var offset = $(elem).offset();
+        context.lineTo(e.clientX - offset.left, e.clientY - offset.top);
+        context.stroke();
+    }
+}
+
+var ctx = document.getElementById("drawing");
+$("#drawing").mousemove(makeDrawFunction(ctx));
+
+var ctx_without_offset = document.getElementById("without_offset");
+$("#without_offset").mousemove(makeDrawFunction(ctx_without_offset));
+</script>
+
+
+</head>
+<body>
+ <canvas id="drawing"></canvas>
+
+<canvas id="without_offset"></canvas>
+</body>
+</html> -->

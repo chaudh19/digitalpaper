@@ -1,0 +1,176 @@
+<!-- 
+
+<div class="row">
+  <div class="col-1">
+  </div>
+  <div class="col-8">
+    <div class="equation-box">
+      <input data-num="{{num}}">
+    </div>
+  </div>
+  <div class="col-3" style="padding-left:5px">
+    <div class="hint-box">
+      <div class="hint-title">HINT</div>
+      <p>hint {{hint}}</p>
+    </div>
+  </div>
+</div> -->
+        
+        
+
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-8">
+                <div class="equation-box">
+                    <div id="print" class="print" data-num="{{num}}"></div>
+                    <canvas height="200" class="canvas" id="can" width="700"></canvas>
+                </div>
+            </div>
+            <div class="col-3"></div>
+            <!-- <input id="btn" onclick="save()" type="button" value="Save"> -->
+            <!-- <input id="clr" onclick="erase()" size="23" type="button" value="Clear"> -->
+            
+        </div>
+
+        <script type="text/javascript">
+            var canvas, ctx, flag = false,
+                prevX = 0,
+                currX = 0,
+                prevY = 0,
+                currY = 0,
+                dot_flag = false;
+
+            var x = "black",
+                y = 3;
+            
+            function init() {
+                canvas = document.getElementById('can');
+                ctx = canvas.getContext("2d");
+                w = canvas.width;
+                h = canvas.height;
+                ctx.fillStyle = "white";
+                ctx.fillRect(0,0,w,h);
+                canvas.addEventListener("mousemove", function (e) {
+                    findxy('move', e)
+                }, false);
+                canvas.addEventListener("mousedown", function (e) {
+                    findxy('down', e)
+                }, false);
+                canvas.addEventListener("mouseup", function (e) {
+                    findxy('up', e)
+                }, false);
+                canvas.addEventListener("mouseout", function (e) {
+                    findxy('out', e)
+                }, false);
+            }
+            
+            // var offset = $(elem).offset();
+            //         context.lineTo(e.clientX - offset.left, e.clientY - offset.top);
+            //         context.stroke();
+            
+            function draw() {
+                ctx.beginPath();
+                ctx.moveTo(prevX, prevY);
+                ctx.lineTo(currX, currY);
+                ctx.strokeStyle = x;
+                ctx.lineWidth = y;
+                ctx.stroke();
+                ctx.closePath();
+            }
+            
+            function erase() {
+                canvas = document.getElementById('can');
+                ctx = canvas.getContext("2d");
+                w = canvas.width;
+                h = canvas.height;
+                ctx.fillStyle = "white";
+                ctx.fillRect(0,0,w,h);
+            }
+
+            function findxy(res, e) {
+
+                var offset = $('#can').offset();
+                // context.lineTo(e.clientX - offset.left, e.clientY - offset.top);
+
+                if (res == 'down') {
+                    prevX = currX;
+                    prevY = currY;
+                    // currX = e.clientX - canvas.offsetLeft;
+                    // currY = e.clientY - canvas.offsetTop;
+                    currX = e.clientX - offset.left;
+                    currY = e.clientY - offset.top;
+            
+                    flag = true;
+                    dot_flag = true;
+                    if (dot_flag) {
+                        ctx.beginPath();
+                        ctx.fillStyle = x;
+                        ctx.fillRect(currX, currY, 2, 2);
+                        ctx.closePath();
+                        dot_flag = false;
+                    }
+                }
+                if (res == 'up' || res == "out") {
+                    flag = false;
+                }
+                if (res == 'move') {
+                    if (flag) {
+                        prevX = currX;
+                        prevY = currY;
+                        currX = e.clientX - offset.left;
+                        currY = e.clientY - offset.top;
+                        // currX = e.clientX - canvas.offsetLeft;
+                        // currY = e.clientY - canvas.offsetTop;
+                        draw();
+                    }
+                }
+            }
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                init();
+            });
+            // function getCookie(name) {
+            //     let cookieValue = null;
+            //     if (document.cookie && document.cookie !== '') {
+            //         const cookies = document.cookie.split(';');
+            //         for (let i = 0; i < cookies.length; i++) {
+            //             const cookie = cookies[i].trim();
+            //             // Does this cookie string begin with the name we want?
+            //             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            //                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     return cookieValue;
+            // }
+            // const csrftoken = getCookie('csrftoken');
+
+            // function save() {
+
+            //     var dataURL = canvas.toDataURL();
+
+            //     $.ajax({
+            //         type:'POST',
+            //         url:'../mathpix_lookup',
+            //         data:{
+            //             dataURL: dataURL,
+            //             csrfmiddlewaretoken:getCookie('csrftoken'),
+            //             action: 'post'
+            //         },
+            //         success:function(json){
+            //             console.log(json);
+            //             $("#print").html(json);
+            //         },
+            //         error : function(xhr,errmsg,err) {
+            //             $("#print").html('there was an error');
+            //             console.log(xhr.status + ": " + xhr.responseText); 
+            //         }
+            //     });
+            // };
+        </script>
+

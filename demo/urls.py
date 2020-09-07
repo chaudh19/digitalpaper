@@ -10,4 +10,10 @@ urlpatterns = [
     path('wolfram_terms', views.wolfram_terms, name='wolfram_terms'),
     path('wolfram', views.wolfram, name='wolfram'),
     path('perms', views.perms, name='perms'),
+    path('bootstrap/<int:num>', views.bootstrap, name='bootstrap'),
+    path('bootstrap_query', views.bootstrap_query, name='bootstrap_query'),
+
+
+    path('test_1', views.test_1, name='test_1'),
+    
 ]
